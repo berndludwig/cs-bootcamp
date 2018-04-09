@@ -20,9 +20,6 @@ extensions:
         x: 157
         y: 146
         navigate:
-          fc132a4d-6191-98d3-51eb-0dd0a44c29a7:
-            targetId: 64a1dc30-c7cc-70e5-c777-03a45ada1b7c
-            port: FAILURE
           f9c9ec73-8d36-f676-a8aa-a3cd7e9459bc:
             targetId: 486bd4cc-430c-f4d4-424c-d4bfa9ed9da2
             port: SUCCESS
@@ -31,12 +28,17 @@ extensions:
                 y: 170
               - x: 364
                 y: 177
+              - x: 392
+                y: 176
+          4fdb1e49-05da-badd-d999-a36e97edb670:
+            targetId: f508f10c-ab04-7cbc-5807-9e5e5da3b091
+            port: FAILURE
     results:
       SUCCESS:
         486bd4cc-430c-f4d4-424c-d4bfa9ed9da2:
           x: 439
           y: 152
       FAILURE:
-        64a1dc30-c7cc-70e5-c777-03a45ada1b7c:
-          x: 416
-          y: 333
+        f508f10c-ab04-7cbc-5807-9e5e5da3b091:
+          x: 384
+          y: 284
