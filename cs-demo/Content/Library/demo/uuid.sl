@@ -13,5 +13,5 @@ operation:
       - uuid: ${uuid}
 
     results:
-      - SUCCESS: ${uuid}
+      - SUCCESS
       - FAILURE
