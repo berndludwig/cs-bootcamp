@@ -5,7 +5,7 @@ operation:
     name: uuid
 
     python_action:
-      script:
+      script: |
         import uuid
         uuid = str(uuid.uuid1())
 
