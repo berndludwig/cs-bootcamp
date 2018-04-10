@@ -1,37 +1,119 @@
 namespace: demo
 flow:
   name: CreateVM
+  inputs:
+    - host: 10.0.46.10
+    - username: "Capa1\\1281-capa1user"
+    - password: Automation123
+    - datacenter: CAPA1 Datacenter
+    - image: Ubuntu
+    - folder: Students/bernd
+    - prefix_list: '1-,2-,3-'
   workflow:
-    - uuid:
+    - generate_uuid:
         do:
           io.cloudslang.demo.uuid: []
         publish:
           - uuid: '${"Bernd-"+uuid}'
         navigate:
+          - SUCCESS: substring
+    - substring:
+        do:
+          io.cloudslang.base.strings.substring:
+            - origin_string: '${uuid}'
+            - end_index: '14'
+        publish:
+          - id: '${new_string}'
+        navigate:
+          - SUCCESS: clone_vm
+          - FAILURE: on_failure
+    - clone_vm:
+        parallel_loop:
+          for: prefix in prefix_list
+          do:
+            io.cloudslang.vmware.vcenter.vm.clone_vm:
+              - host: '${host}'
+              - user: '${username}'
+              - password:
+                  value: '${password}'
+                  sensitive: true
+              - vm_source_identifier: name
+              - vm_source: '${image}'
+              - datacenter: '${datacenter}'
+              - vm_name: '${prefix+id}'
+              - vm_folder: '${folder}'
+              - mark_as_template: 'false'
+              - trust_all_roots: 'true'
+              - x_509_hostname_verifier: allow_all
+        navigate:
+          - SUCCESS: power_on_vm
+          - FAILURE: on_failure
+    - power_on_vm:
+        parallel_loop:
+          for: prefix in prefix_list
+          do:
+            io.cloudslang.vmware.vcenter.power_on_vm:
+              - host: '${host}'
+              - user: '${username}'
+              - password:
+                  value: '${password}'
+                  sensitive: true
+              - vm_identifier: name
+              - vm_name: '${prefix+id}'
+              - trust_all_roots: 'true'
+              - x_509_hostname_verifier: allow_all
+        navigate:
+          - SUCCESS: wait_for_vm_info
+          - FAILURE: on_failure
+    - wait_for_vm_info:
+        parallel_loop:
+          for: prefix in prefix_list
+          do:
+            io.cloudslang.vmware.vcenter.util.wait_for_vm_info:
+              - host: '${host}'
+              - user: '${username}'
+              - password:
+                  value: '${password}'
+                  sensitive: true
+              - vm_identifier: name
+              - vm_name: '${prefix+id}'
+              - datacenter: '${datacenter}'
+              - trust_all_roots: 'true'
+              - x_509_hostname_verifier: allow_all
+        publish:
+          - ip_list: '${str([str(x["ip"]) for x in branches_context])}'
+        navigate:
           - SUCCESS: SUCCESS
           - FAILURE: on_failure
+  outputs:
+    - ip_list: '${ip_list}'
   results:
     - SUCCESS
     - FAILURE
 extensions:
   graph:
     steps:
-      uuid:
-        x: 157
-        y: 146
+      generate_uuid:
+        x: 100
+        y: 150
+      substring:
+        x: 400
+        y: 150
+      clone_vm:
+        x: 700
+        y: 150
+      power_on_vm:
+        x: 700
+        y: 353
+      wait_for_vm_info:
+        x: 445
+        y: 350
         navigate:
-          f9c9ec73-8d36-f676-a8aa-a3cd7e9459bc:
-            targetId: 486bd4cc-430c-f4d4-424c-d4bfa9ed9da2
+          cde35cd7-6524-81f5-8830-c8dfb4ac4099:
+            targetId: f8fa8304-9702-1d1d-ae5b-c06ee75eec68
             port: SUCCESS
-            vertices:
-              - x: 299
-                y: 170
-              - x: 364
-                y: 177
-              - x: 392
-                y: 176
     results:
       SUCCESS:
-        486bd4cc-430c-f4d4-424c-d4bfa9ed9da2:
-          x: 439
-          y: 152
+        f8fa8304-9702-1d1d-ae5b-c06ee75eec68:
+          x: 288
+          y: 349
